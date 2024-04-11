@@ -1,108 +1,45 @@
-import axios from 'axios';
 import EncryptedStorage from 'react-native-encrypted-storage';
-
-const baseUrl = '';
+import axiosInstance from './axiosInstance';
+import axios from 'axios';
+const baseURL = 'https://autobiography-9d461.web.app';
 
 export const createProfile = async (nickname, introduce, profilePicture) => {
-  let accessToken = await EncryptedStorage.getItem('accessToken');
-
+  //let accessToken = await EncryptedStorage.getItem('accessToken');
+  let useremail = await EncryptedStorage.getItem('email');
+  console.log("useremail", useremail);
+  console.log("닉네임, 한줄 소개, 사진 : ", nickname, introduce, profilePicture);
+  const accessToken = await EncryptedStorage.getItem('accessToken');
   try {
-    const response = await axios.post(
-      `${baseUrl}/api/profile`,
-      {
+    const response = await axiosInstance.put(
+      '/api/profile',
+      JSON.stringify({
         nickname: nickname,
         introduce: introduce,
         profilePicture: profilePicture,
-      },
-      {headers: {Authorization: `Bearer ${accessToken}`}},
+        username : useremail,
+      }),
     );
 
     console.log('프로필이 성공적으로 저장되었습니다 : ', response.data);
     return response.data;
   } catch (error) {
-    if (error.response && error.response.status == 401) {
-      try {
-        const refreshToken = await EncryptedStorage.getItem('refreshToken');
-        const refreshResponse = await axios.post(`${baseUrl}/auth/renew`, {
-          refreshToken: refreshToken,
-        });
-        accessToken = refreshResponse.data.accessToken;
-        //다시 재요청 보내기
-        await EncryptedStorage.setItem('accessToken', accessToken);
-        const response = await axios.post(
-          `${baseUrl}/api/profile`,
-          {
-            nickname: nickname,
-            introduce: introduce,
-            profilePicture: profilePicture,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        );
+    console.log(error);
+    }};
 
-        console.log('프로필이 성공적으로 저장되었습니다. ', response.data);
-      } catch (refreshError) {
-        console.error('액세스 토큰 갱신 중 에러 발생 : ', refreshError);
-        throw refreshError;
-      }
-    } else {
-      console.error('게시글을 올리는 도중 오류 발생함:', error);
-      throw error;
-    }
-  }
-};
 
-export const updateProfile = async (nickname, introduce, profilePicture) => {
-  try {
-    let accessToken = await EncryptedStorage.getItem('accessToken');
 
-    const response = await axios.put(
-      `${baseUrl}/api/profile`,
-      {
-        nickname: nickname,
-        introduce: introduce,
-        profilePicture: profilePicture,
-      },
-      {headers: {Authorization: `Bearer ${accessToken}`}},
-    );
+    // export const getUserProfile = async() => {
+    //   try{
 
-    console.log('프로필이 성공적으로 수정되었습니다: ', response.date);
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status == 401) {
-      try {
-        const refreshToken = await EncryptedStorage.getItem('refreshToken');
-        const refreshResponse = await axios.put(`${baseUrl}/auth/renew`, {
-          refreshToken: refreshToken,
-        });
-        accessToken = refreshResponse.data.accessToken;
-        //다시 재요청 보내기
-        await EncryptedStorage.setItem('accessToken', accessToken);
-        const response = await axios.put(
-          `${baseUrl}/api/profile`,
-          {
-            nickname: nickname,
-            introduce: introduce,
-            profilePicture: profilePicture,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          },
-        );
+    //     const response = await axiosInstance.get('/api/profile')
+    //     console.log("사용자 정보 : ", response.data);
 
-        console.log('프로필이 성공적으로 저장되었습니다. ', response.data);
-      } catch (refreshError) {
-        console.error('액세스 토큰 갱신 중 에러 발생 : ', refreshError);
-        throw refreshError;
-      }
-    } else {
-      console.error('게시글을 올리는 도중 오류 발생함:', error);
-      throw error;
-    }
-  }
-};
+    //     return response.data;
+    //   }catch(error){
+    //     console.error('사용자 프로필 정보 가져오기 실패 : ', error);
+    //     throw error;
+    //   }
+    // };
+
+
+ 

@@ -1,7 +1,33 @@
 import axios from 'axios';
+const baseURL = 'https://autobiography-9d461.web.app';
+const axiosInstance = axios.create({
+  baseURL: 'https://autobiography-9d461.web.app',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-const axiosInstance = axios.create({ 
-  baseURL : 'https://autobiography-9d461.web.app' });
+
+
+
+// export const reqEmailver = async email => {
+//   try {
+//     const response = await axiosInstance.post('/auth/email', { email : email });
+
+//     if(response.data && response.data.certification_key){
+//       console.log('인증번호가 발송되었습니다. 이메일을 확인해주세요.');
+//       alert('인증번호가 발송되었습니다. 이메일을 확인해주세요.');
+//     }
+//     else {
+//       throw new Error('이메일 인증 실패');
+//     }
+//     return response.data.certification_key;
+
+//   } catch (error) {
+//     console.error('이메일 인증 요청 실패 : ', error);
+//     alert('이메일 인증 요청 실패 : ' + error.message);
+//   }
+// };
 
 export const reqEmailver = async email => {
   try {
@@ -22,26 +48,18 @@ export const reqEmailver = async email => {
   }
 };
 
-//`${baseUrl}/auth/email/validation`
-export const checkEmailver = async (certificationkey, certificationcode) => {
+export const checkEmailver = async (cert_key, cert_code) => {
   try {
-    console.log('넘어온 값 : ', certificationkey, certificationcode);
-    const response = await axios.post(
-      `${baseUrl}/auth/email/validation`,
-      JSON.stringify({
-        certification_key: certificationkey,
-        certification_code: certificationcode,
-      }),
+    console.log('넘어온 값 : ', cert_key, cert_code);
+    const response = await axiosInstance.post(
+      '/auth/email/validation',
       {
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        certification_key: cert_key,
+        certification_code: cert_code,
       },
     );
 
     const validate = response.data.is_validated;
-    //is_validated는 0또는 1을 가지고 있을 것.
-    //인증 성공시 0반환, 실패시 1반환.
     console.log('is_validated 값 : ', validate);
     return validate;
   } catch (error) {
@@ -49,14 +67,15 @@ export const checkEmailver = async (certificationkey, certificationcode) => {
   }
 };
 
-export const normalsignUp = async (email, password, name, tel, birth) => {
+export const normalsignUp = async (email, password, name, tel, birth, nickname) => {
   try {
-    const response = await axios.post(`${baseUrl}/auth/sign-up`, {
-      email: email,
-      password: password,
-      name: name,
-      tel: tel,
-      birth: birth,
+    const response = await axiosInstance.post('/auth/sign-up', {
+      email,
+      password,
+      name,
+      tel,
+      birth,
+      nickname,
     });
 
     const success = response.data.success;

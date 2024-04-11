@@ -16,9 +16,11 @@ import {reqEmailver, checkEmailver} from '../api/signupApi';
 //회원가입 화면
 
 function SignUpScreen({navigation}) {
-  const [text, setText] = useState('');
-  const [number, setNumber] = useState('');
+  const [text, setText] = useState('');  //이메일
+  const [number, setNumber] = useState(''); //인증번호
+  const [password, setPassword] = useState(''); //비밀번호
   const [certification, setCertification] = useState('');
+  
 
 
   const handleEmailVerification = async () => {
@@ -28,7 +30,6 @@ function SignUpScreen({navigation}) {
       console.log('text:', text);
       console.log('인증 키:', certificationKey);
       setCertification(certificationKey);
-      console.log('certification:', certification);
     } catch (error) {
       console.log('text:', text);
       console.error('이메일 인증 요청 실패:', error);
@@ -36,16 +37,17 @@ function SignUpScreen({navigation}) {
   };
 
   const moveToRegiInfo = () => {
-    console.log('text:', text, 'number:', number);
-    navigation.navigate('RegisterInfo', {text, number});
+    console.log('text:', text, 'password:', password);
+    navigation.navigate('RegisterInfo', {text, password});
   };
 
   const handleEmailVerCheck = async () => {
 
     try {
-      console.log('certification:', certification);
+      console.log('인증확인 certification:', certification);
+      console.log('number : ', number);
       const is_validated = await checkEmailver(certification, number);
-
+      console.log('is_validated :', is_validated);
       // is_validated 값에 따라 다른 동작 수행 가능
       if (is_validated === 0) {
         console.log('이메일 인증 성공!');
@@ -77,7 +79,7 @@ function SignUpScreen({navigation}) {
           style={styles.inputStyle}
         />
         <Button title="확인" onPress={handleEmailVerCheck} />
-        <TextInput placeholder="비밀번호 입력" style={styles.inputStyle} />
+        <TextInput placeholder="비밀번호 입력" value={password} onChangeText={value => setPassword(value)} style={styles.inputStyle} />
         <TextInput placeholder="비밀번호 재입력" style={styles.inputStyle} />
         <Button title="다음" onPress={moveToRegiInfo} />
       </View>

@@ -43,8 +43,9 @@ axiosInstance.interceptors.request.use(
             // await 추가 - 채리 comment
             const accessToken = await EncryptedStorage.getItem('accessToken');
             config.headers['Content-Type'] = 'application/json';
-            config.headers['Authorization'] = `Bearer ${accessToken}`;
-
+            config.headers['Authorization'] = accessToken;
+            //console추가 - 민지
+            console.log('원래 요청 config: ' ,config);
             return config;
 
         } catch(error){
@@ -60,12 +61,14 @@ axiosInstance.interceptors.request.use(
   
 
 axiosInstance.interceptors.response.use( 
-
-    response => response,
+    //민지 - 1차 요청, 재요청 성공 여부 알기 위해 console.log 작성
+    response => {
+        console.log('성공!');
+        return response},
 
     async(error) => {
 
-        console.log('error response:',error.response.status);
+        console.log('error response:',error.response.config.data);
 
         if(error.response && error.response.status == 401){
             try{
@@ -81,12 +84,14 @@ axiosInstance.interceptors.response.use(
                 // };
 
                 // 헤더 업데이트 - 채리 comment
-                error.config.headers['Authorization'] = `Bearer ${newAccessToken}`; 
+                error.config.headers['Authorization'] = newAccessToken; 
                 
+                //console추가 - 민지
+                console.log("오류 이후 config : ", error.config);
                 //중단된 요청 토큰 갱신 후 재요청
                 const response = await axios.request(error.config);
                 console.log('response:', response);
-
+                console.log('재요청 성공!');
                 return response;
 
             } catch(reissueError){

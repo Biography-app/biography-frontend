@@ -17,7 +17,7 @@ import {launchImageLibrary} from 'react-native-image-picker';
 import usersStorage from '../storages/usersStorage';
 import {createProfile} from '../api/profileApi';
 
-function SetupProfileScreen({navigation, route}) {
+function SetupProfileScreen({navigation}) {
   const [oneliner, setOneliner] = useState('');
   const [response, setResponse] = useState(null);
   const [profileImage, setProfileImage] = useState(null);

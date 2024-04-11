@@ -4,6 +4,8 @@ import {useNavigation} from '@react-navigation/native';
 import usersStorage from '../storages/usersStorage';
 import essaysStorage from '../storages/essaysStorage';
 import MyEssayHeader from '../components/MyEssayHeader';
+import { getUserProfile } from '../api/profileApi';
+
 
 function Header({image, nickname}) {
   const imageSource = image ? {uri: image} : require('../assets/user.png');
@@ -60,6 +62,20 @@ function MyEssayScreen() {
       }
     };
 
+    const fetchUserProfile = async() => {
+      try{
+        const profileData = await getUserProfile();
+        setNickname(profileData.nickname);
+        setUserImage(profileData.profilePicture);
+      }catch(error){
+        console.error('Failed to fetch user profile:', error);
+
+      }
+    };
+
+    fetchUserProfile();
+    
+    
     const unsubscribe = navigation.addListener('focus', () => {
       getStoredEssay();
       getStoredUser();

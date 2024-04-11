@@ -13,21 +13,41 @@ import SettingHeader from '../components/SettingHeader';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {launchImageLibrary} from 'react-native-image-picker';
 import usersStorage from '../storages/usersStorage';
-import BorderedInput from '../components/BorderedInput';
-import {updateProfile} from '../api/profileApi';
+import {createProfile} from '../api/profileApi';
+import EncryptedStorage from 'react-native-encrypted-storage';
+// import axios  from 'axios';
+
+// const reissueToken = async() => {
+
+//   try{
+//       const refreshToken = await EncryptedStorage.getItem('refreshToken');
+//       const response = await axios.post(`${baseURL}/auth/renew`,{refreshToken: refreshToken},{headers: {'Content-Type' : 'application/json'}});
+
+  
+//   console.log('newaccessToken:', response.data.accessToken);
+
+//   // 새로운 토큰 저장 - 채리 comment
+//   await EncryptedStorage.setItem('accessToken', response.data.accessToken); 
+//   return response.data.accessToken;
+  
+//   } catch(error){
+//       console.error('토큰 재발급 실패 :', error);
+//       throw error;
+//   }
+// };
+
+// const baseURL = 'https://autobiography-9d461.web.app';
 
 function ModifyProfileScreen({route, navigation}) {
-  const {
-    oneliner: initialOneliner,
+  const{
     nickname: initialNickname,
-    profileImage: initialProfileImage,
-  } = route.params || {};
-  const [oneliner, setOneliner] = useState(initialOneliner || '');
-  const [response, setResponse] = useState(
-    initialProfileImage ? {assets: [{uri: initialProfileImage}]} : null,
-  );
-  const [profileImage, setProfileImage] = useState(initialProfileImage || null);
-  const [nickname, setNickname] = useState(initialNickname || '');
+  } = route.params||{};
+  const [oneliner, setOneliner] = useState(''); //한줄소개
+  const [response, setResponse] = useState(null);
+  const [profileImage, setProfileImage] = useState(null);
+  //const [nickname, setNickname] = useState(initialNickname || '');
+  const [nickname, setNickname] = useState(null);
+
 
   const onSelectImage = () => {
     launchImageLibrary(
@@ -43,7 +63,7 @@ function ModifyProfileScreen({route, navigation}) {
         }
         setResponse(res);
         setProfileImage(res?.assets[0]?.uri);
-        //저장소에 이미지 저장은 아니고 profileImage에 새로운 상태 업데이또.
+        //저장소에 이미지 저장은 아니고 profileImage에 새로운 상태 업데이트.
       },
     );
   };
@@ -64,18 +84,17 @@ function ModifyProfileScreen({route, navigation}) {
 
   const changeUserProfile = async () => {
     try {
-      const newUser = {
-        profileImage: profileImage || '',
-        oneliner: oneliner || '',
-        nickname: nickname || '',
-      };
-      await usersStorage.set(newUser);
-      console.log('User profile updated successfully');
+      await createProfile(nickname, oneliner, profileImage);
     } catch (error) {
       console.error('Error updating user profile:', error);
     }
   };
 
+  // const changeUserProfile = async() => {
+  //   const beforeaccessToken = await EncryptedStorage.getItem('accessToken');
+  //   const newAccessToken = await reissueToken();
+  //   console.log('accessToken:' ,newAccessToken);
+  // }
   const deleteImage = async () => {
     try {
       await usersStorage.delete();
@@ -153,7 +172,7 @@ function ModifyProfileScreen({route, navigation}) {
             <Menu title={'한줄 소개'} />
             <View>
               <TextInput
-                defaultValue={initialOneliner}
+                defaultValue={"한줄 소개를 입력해주세요."}
                 onChangeText={onChangeText}
                 value={oneliner}
               />

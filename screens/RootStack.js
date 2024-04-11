@@ -19,6 +19,7 @@ import EditPageScreen from './EditPageScreen';
 import ModifyProfileScreen from './ModifyProfileScreen';
 import MoveToMyEssayScreen from './MoveToMyEssayScreen';
 import MoveToEssayScreen from './MoveToEssayScreen';
+import RegisterInfoScreen from './RegisterInfoScreen';
 const Stack = createNativeStackNavigator();
 
 function RootStack() {
@@ -29,22 +30,40 @@ function RootStack() {
         component={SignInScreen}
         options={{headerTitleAlign: 'center'}}
       />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
+      
+      <Stack.Screen
+        name="ModifyProfile"
+        component={ModifyProfileScreen}
+        options={{headerShown: false}}
+      />
       <Stack.Screen
         name="List"
         options={{title: '글쓰기'}}
         component={ListScreen}
       />
+      
+      
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{headerShown: false}}
+      />
+      
+      
+      <Stack.Screen
+        name="RegisterInfo"
+        component={RegisterInfoScreen}
+        options={{headerTitleAlign: 'center'}}
+      />
+      
       <Stack.Screen
         name="SetupProfile"
         component={SetupProfileScreen}
         options={{headerTitleAlign: 'center'}}
       />
 
-      <Stack.Screen
-        name="ModifyProfile"
-        component={ModifyProfileScreen}
-        options={{headerShown: false}}
-      />
+      
       <Stack.Screen
         name="MoveToEssay"
         component={MoveToEssayScreen}
@@ -81,11 +100,7 @@ function RootStack() {
         options={{headerShown: false}}
       />
 
-      <Stack.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{headerShown: false}}
-      />
+      
       <Stack.Screen
         name="Information"
         component={InformationScreen}
@@ -104,7 +119,7 @@ function RootStack() {
         options={{headerShown: false}}
       />
       <Stack.Screen name="WebView" component={WebviewScreen} />
-      <Stack.Screen name="SignUp" component={SignUpScreen} />
+      
 
       <Stack.Screen
         name="Page"

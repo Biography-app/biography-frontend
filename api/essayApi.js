@@ -1,16 +1,19 @@
 import axios from 'axios';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 //글 작성하기
 
-const baseUrl = '';
+const baseURl = 'https://autobiography-9d461.web.app';
 
-const postEssay = async (title, content, secret) => {
+export const postEssay = async (title, content, secret) => {
+  let accessToken= await EncryptedStorage.getItem('accessToken');
+  console.log('accessToken:',accessToken);
   try {
-    const response = await axios.post(`{baseURl}/api/board/saveForm`, {
+    const response = await axios.post(`${baseURl}/api/board/saveForm`, {
       title: title,
       content: content,
       secret: secret,
-    });
+    },{headers: {Authorization: `Bearer ${accessToken}`}});
 
     console.log('게시글이 성공적으로 올라갔습니다:', response.data); //
     return response.data;
@@ -23,7 +26,7 @@ const postEssay = async (title, content, secret) => {
 //이후에 postEssay함수 활용해 게시글 올림 postArticle('게시글 제목', '게시글 내용', true); 이렇게 작성함.
 
 //글 수정하기
-const updateEssay = async (id, title, content) => {
+export const updateEssay = async (id, title, content) => {
   try {
     const response = await axios.put('/api/board/{id}', {
       title: title,
@@ -45,7 +48,7 @@ const updateEssay = async (id, title, content) => {
 // updateEssay(essayId, updatedTitle, updatedContent);
 
 //글 삭제하기
-const deleteEssay = async id => {
+export const deleteEssay = async id => {
   try {
     const response = await axios.delete('/api/board/{id}');
     console.log('에세이가 성공적으로 삭제됨:', response.data);
@@ -58,3 +61,25 @@ const deleteEssay = async id => {
 
 // const essayId = 'your-essay-id'; // 삭제할 에세이의 ID
 // deleteEssay(essayId);
+
+// export const getEssay = async() => {
+//   try{
+//     const accessToken = await EncryptedStorage.getItem('accessToken');
+//     const response = await axios.get(`${baseURL}/api/board/`)
+//   }
+
+// };
+
+// //지피티가 알려준 것..
+// export const getEssayById = async (essayId) => {
+//   try {
+//     const accessToken = await EncryptedStorage.getItem('accessToken');
+//     const response = await axios.get(`${baseURL}/api/board/${essayId}`, {
+//       headers: { Authorization: `Bearer ${accessToken}` },
+//     });
+//     return response.data; // 서버에서 받아온 글 데이터 반환
+//   } catch (error) {
+//     console.error(`Error fetching essay with ID ${essayId}:`, error);
+//     throw error;
+//   }
+// };

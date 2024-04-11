@@ -12,25 +12,27 @@ function RegisterInfoScreen({route, navigation}) {
     );
   }
 
-  const {text, number} = route.params;
+  const {text, password} = route.params;
   const [name, onChangeName] = useState('');
   const [phone, onChangePhone] = useState();
   const [bday, onChangeBday] = useState();
+  const [nickname, onChangeNickname] = useState('');
 
   const handleInfo = async () => {
     try {
       console.log(
-        'text, number, name, phone, bday:',
+        'text, password, name, phone, bday, nickname:',
         text,
-        number,
+        password,
         name,
         phone,
         bday,
+        nickname,
       );
-      await normalsignUp(text, number, name, phone, bday);
+      await normalsignUp(text, password, name, phone, bday, nickname);
       navigation.navigate('SetupProfile');
     } catch (error) {
-      console.log(name, phone, bday);
+      console.log(name, phone, bday, nickname);
       console.error('회원가입 정보 전달 실패:', error);
     }
   };
@@ -64,6 +66,15 @@ function RegisterInfoScreen({route, navigation}) {
             placeholder="생년 월일 입력"
             value={bday}
             onChangeText={onChangeBday}
+          />
+        </View>
+        <View>
+          <Text>"닉네임 입력"</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="닉네임 입력"
+            value={nickname}
+            onChangeText={onChangeNickname}
           />
         </View>
         <Button title="다음" onPress={handleInfo} />

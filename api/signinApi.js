@@ -1,76 +1,119 @@
 import axios from 'axios';
+import { Linking } from 'react-native';
 import EncryptedStorage from 'react-native-encrypted-storage';
 
-const baseURl = '';
 
-// 일반로그인 
+const axiosInstance = axios.create({
+  baseURL: 'https://autobiography-9d461.web.app',
+});
+//headers - 필요 X
+
+// 인가코드를 백엔드로 전달 
+const sendCodeToBackend = async (code) => {
+  try {
+
+    const response = await axios.post('/auth/kakao/callback' , { code });
+    const { accessToken, refreshToken } = response.data;
+
+    // 토큰 저장 
+    await EncryptedStorage.setItem('accessToken', accessToken);
+    await EncryptedStorage.setItem('refreshToken', refreshToken);
+
+  }
+  catch (error) {
+    console.error('인가코드 전달 실패 : ', error);
+  }
+};
+
+
 export const signIn = async (email, password) => {
   try {
-    const response = await axios.post(`${baseURl}/auth/sign-in`, {
-      email: email,
-      password: password,
+    console.log('email, password : ', email, password);
+    const response = await axiosInstance.post('/auth/sign-in', {
+      email,
+      password,
     });
 
-    const success = response.data.success;
-    const access_token = response.data.access_token;
-    const refresh_token = response.data.refresh_token;
-
-    await EncryptedStorage.setItem('accessToken', response.data.access_token);
-    await EncryptedStorage.setItem('refreshToken', response.data.refresh_token);
+    const { success, accessToken, refreshToken } = response.data;
 
     console.log(
-      'success',
-      success,
-      'access_token : ',
-      access_token,
-      'refresh_token : ',
-      refresh_token,
+      'success:', success,
+      'accessToken:', accessToken,
+      'refreshToken:', refreshToken
     );
 
-    //response 응답 자체를 리턴하고,
+    await EncryptedStorage.setItem('accessToken', accessToken);
+    await EncryptedStorage.setItem('refreshToken', refreshToken);
+    await EncryptedStorage.setItem('email', email);
+
+    const storedAccessToken = await EncryptedStorage.getItem('accessToken');
+    console.log('로컬에서 가져온 값 : ', storedAccessToken);
+  
   } catch (error) {
     console.error('일반 로그인 중 실패 : ', error);
   }
 };
 
-
-//카카오 로그인은 잘 모르겠다.
+// 카카오 로그인 수정 필요!
 export const kakaoLogin = async () => {
   try {
-    const response = await axios.get(`${baseURl}/auth/kakao/callback`);
+    const restApiKey = '65206fdd79e2cb40a2cfe63955968c83';
+    const redirectUri = 'https://autobiography-9d461.web.app/auth/kakao/callback';
+    const link = `https://kauth.kakao.com/oauth/authorize?client_id=${restApiKey}&redirect_uri=${redirectUri}&response_type=code`;
+        
+    const supported = await Linking.canOpenURL(link);
 
-    const access_token = response.data.access_token;
-    const refresh_token = response.data.refresh_token;
+    // 인가코드 받아오기 
+    if (supported) {
 
-    await EncryptedStorage.setItem('accessToken', response.data.access_token);
-    await EncryptedStorage.setItem('refreshToken', response.data.refresh_token);
+      // 리다이렉트 이벤트 리스너 등록
+      const handleOpenURL = ({ url }) => {
+        // URL에서 인가 코드 추출
+        const code = new URL(url).searchParams.get('code');
+        if (code) {
+          // 인가 코드를 백엔드로 전달하는 함수 호출
+          sendCodeToBackend(code);
+        }
+        // 이벤트 리스너 제거
+        Linking.removeEventListener('url', handleOpenURL);
+      };
+  
+      Linking.addEventListener('url', handleOpenURL);
+      await Linking.openURL(link);
+    
+    } else {
+      console.error("url 열기 실패");
+    }
+  
+  } catch (error) {
+    console.error('카카오 로그인 실패 : ', error);
+  }
+};
 
-    console.log(
-      'access_token: ',
-      access_token,
-      'refresh_token: ',
-      refresh_token,
-    );
-
-  } catch (error) {}
+export const reissueTokens = async () => {
+  try {
+    const refreshToken = await EncryptedStorage.getItem("refreshToken");
+    const response = await axiosInstance.post('/auth/renew', { refreshToken });
+    return response.data; // 수정 필요
+  } catch (error) {
+    console.error('토큰 재발급 실패 : ', error);
+    throw error;
+  }
 };
 
 export const sign_out = async () => {
   try {
-    const access_token = await EncryptedStorage.getItem('accessToken');
+    const access_Token = await EncryptedStorage.getItem('accessToken');
 
-    await axios.post(
-      `{baseUrl}/auth/sign-out`,
-      {access_token},
-      {
-        headers: {
-          Authorization: `Bearer ${access_token}`,
-        },
+    await axiosInstance.post('/auth/sign-out', {access_token}, 
+    {
+      headers: {
+        Authorization: `Bearer ${access_Token}`,
       },
-    );
+    });
 
     await EncryptedStorage.removeItem('refreshToken', 'accessToken');
-    console.log('로그아웃 성공 : ', error);
+    console.log('로그아웃 성공');
   } catch (error) {
     console.error('로그아웃 실패 : ', error);
   }

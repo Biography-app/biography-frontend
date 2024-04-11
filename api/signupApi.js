@@ -1,33 +1,24 @@
 import axios from 'axios';
-//회원가입 api
-const baseUrl = 'https://autobiography-9d461.web.app';
-//`${baseUrl}/auth/email`
+
+const axiosInstance = axios.create({ 
+  baseURL : 'https://autobiography-9d461.web.app' });
 
 export const reqEmailver = async email => {
   try {
-    const response = await axios.post(
-      `${baseUrl}/auth/email`,
-      JSON.stringify({email: email}),
-      {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      },
-    );
-    //post했을 때 얻는 응답값(response)
-    console.log('email', email);
-    if (response.status === 200) {
+    const response = await axiosInstance.post('/auth/email', { email : email });
+
+    if(response.data && response.data.certification_key){
       console.log('인증번호가 발송되었습니다. 이메일을 확인해주세요.');
       alert('인증번호가 발송되었습니다. 이메일을 확인해주세요.');
-    } else {
+    }
+    else {
       throw new Error('이메일 인증 실패');
     }
-
     return response.data.certification_key;
+
   } catch (error) {
     console.error('이메일 인증 요청 실패 : ', error);
-    alert('이메일 인증 요청 실패 : ', error);
-    return '';
+    alert('이메일 인증 요청 실패 : ' + error.message);
   }
 };
 

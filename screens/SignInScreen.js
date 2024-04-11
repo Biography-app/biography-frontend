@@ -21,7 +21,7 @@ function SignInScreen({navigation}) {
   const requestKakaoLogin = async () => {
     try {
       await kakaoLogin();
-      console.log('카카오 로그인 성공');
+      //console.log('카카오 로그인 성공');
       navigation.navigate('ModifyProfile');
     }
     catch(error) {

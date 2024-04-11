@@ -15,6 +15,7 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+.bundle/
 
 # node.js
 #

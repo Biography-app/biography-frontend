@@ -18,11 +18,15 @@ const sendCodeToBackend = async (code) => {
 
     // 토큰 저장 
     await EncryptedStorage.setItem('accessToken', accessToken);
+    console.log('kakao accessToken:', accessToken);
     await EncryptedStorage.setItem('refreshToken', refreshToken);
+    console.log('kakao refreshToken:', refreshToken);
 
+    return true;
   }
   catch (error) {
     console.error('인가코드 전달 실패 : ', error);
+    return false;
   }
 };
 
@@ -72,28 +76,44 @@ export const kakaoLogin = async () => {
     // 인가코드 받아오기 
     if (supported) {
 
-      // 리다이렉트 이벤트 리스너 등록
-      const handleOpenURL = ({ url }) => {
-        // URL에서 인가 코드 추출
-        const code = new URL(url).searchParams.get('code');
-        if (code) {
-          // 인가 코드를 백엔드로 전달하는 함수 호출
-          sendCodeToBackend(code);
-        }
-        // 이벤트 리스너 제거
-        Linking.removeEventListener('url', handleOpenURL);
-      };
-  
+      // 리다이렉트 이벤트 리스너 등록 전에 기존 리스너 제거 
+      Linking.removeEventListener('url', handleOpenURL);
       Linking.addEventListener('url', handleOpenURL);
-      await Linking.openURL(link);
+
+      const openResult = await Linking.openURL(link);
+      return openResult; // URL 열기 시도 결과 반환 
     
     } else {
       console.error("url 열기 실패");
+      return false;
     }
   
   } catch (error) {
     console.error('카카오 로그인 실패 : ', error);
+    return false;
   }
+};
+
+const handleOpenURL = async ({ url }) => {
+  try {
+    const code = new URL(url).searchParams.get('code');
+    
+    if(!code) {
+      throw new Error('인가 코드를 URL에서 찾을 수 없습니다.');
+    }
+
+    // 인가 코드를 백엔드로 전달하고 응답받기 
+    await sendCodeToBackend(code);
+    console.log('인가 코드가 성공적으로 처리 되었습니다.');
+
+  } 
+  catch(error) {
+    console.error('인가 코드 처리 과정에서 오류 발생', error);
+  }
+  finally {
+    Linking.removeEventListener('url', handleOpenURL);
+  }
+  
 };
 
 export const reissueTokens = async () => {

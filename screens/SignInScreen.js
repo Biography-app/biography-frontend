@@ -39,7 +39,7 @@ function SignInScreen({navigation}) {
         <TextInput
           placeholder="이메일"
           style={styles.input}
-          value={email}a
+          value={email}
           onChangeText={value => setEmail(value)}
         />
         <TextInput

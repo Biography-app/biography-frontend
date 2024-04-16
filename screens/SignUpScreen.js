@@ -79,7 +79,13 @@ function SignUpScreen({navigation}) {
           style={styles.inputStyle}
         />
         <Button title="확인" onPress={handleEmailVerCheck} />
-        <TextInput placeholder="비밀번호 입력" value={password} onChangeText={value => setPassword(value)} style={styles.inputStyle} />
+        <TextInput 
+          placeholder="비밀번호 입력" 
+          secureTextEntry={true}
+          style={styles.inputStyle} 
+          value={password} 
+          onChangeText={value => setPassword(value)} 
+        />
         <TextInput placeholder="비밀번호 재입력" style={styles.inputStyle} />
         <Button title="다음" onPress={moveToRegiInfo} />
       </View>
